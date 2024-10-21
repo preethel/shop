@@ -1,0 +1,177 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
+                        <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger"
+                            (click)="deleteSelectedItemStyles()"
+                            [disabled]="!selectedItemStyles || !selectedItemStyles.length"></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import"
+                        chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"
+                        (click)="dt.exportCSV()"></button>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="itemStyles" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['displayName','name','itemCategory']" [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedItemStyles" selectionMode="multiple" [rowHover]="true" dataKey="id"
+                (onPage)="loadItemStyles()" [expandedRowKeys]="expandedRows">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">
+                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th style="width: 3rem"></th>
+                        <th pSortableColumn="displayName">Display Name <p-sortIcon field="displayName"></p-sortIcon>
+                        </th>
+
+                        <th pSortableColumn="itemCategory">Item Category <p-sortIcon field="itemCategory"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="sizeType">Size Type <p-sortIcon field="sizeType"></p-sortIcon></th>
+                        <th pSortableColumn="externalId">External ID <p-sortIcon field="externalId"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-itemStyle let-expanded="expanded">
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="itemStyle"></p-tableCheckbox>
+                        </td>
+                        <td>
+                            <button type="button" pButton pRipple [pRowToggler]="itemStyle"
+                                class="p-button-text p-button-rounded p-button-plain"
+                                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        </td>
+
+                        <td><span class="p-column-title">Display Name</span>{{itemStyle.displayName}}</td>
+                        <td><span class="p-column-title">Item Category</span>{{itemStyle.itemCategory}}</td>
+                        <td><span class="p-column-title">Size Type</span>{{itemStyle.sizeType}}</td>
+                        <td><span class="p-column-title">External ID</span>{{itemStyle.externalId}}</td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editItemStyle(itemStyle)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                    (click)="deleteItemStyle(itemStyle)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-itemStyle>
+                    <tr>
+                        <td colspan="8">
+                            <app-item-price [inputItemPrices]="itemStyle.itemPrices"></app-item-price>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="itemStyleDialog" [style]="{width: '450px'}" header="Item Style Details" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="displayName">Display Name</label>
+                    <input id="displayName" type="text" pInputText [(ngModel)]="itemStyle.displayName" required
+                        autofocus />
+                </div>
+                @if(!createItemStyle){
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input id="name" type="text" pInputText [(ngModel)]="itemStyle.name" [disabled]="true" />
+                </div>
+                }
+                <div class="field">
+                    <label for="itemCategory">Item Category</label>
+                    <input id="itemCategory" type="text" pInputText [(ngModel)]="itemStyle.itemCategory" required />
+                </div>
+                <div class="field">
+                    <label for="sizeType">Size Type</label>
+                    <input id="sizeType" type="text" pInputText [(ngModel)]="itemStyle.sizeType" required />
+                </div>
+                <div class="field">
+                    <label for="externalId">External ID</label>
+                    <input id="externalId" type="text" pInputText [(ngModel)]="itemStyle.externalId" required />
+                </div>
+                @if(!createItemStyle){
+                <div class="field">
+                    <label for="imageUrl">Image URL</label>
+                    <input id="imageUrl" type="text" pInputText [(ngModel)]="itemStyle.imageUrl" [disabled]="true" />
+                </div>
+                <div class="field">
+                    <label for="lastModifiedAt">Modified At</label>
+                    <input id="lastModifiedAt" type="text" pInputText [(ngModel)]="itemStyle.modifiedDate"
+                        [disabled]="true" />
+                </div>
+                <div class="field">
+                    <label for="lastModifiedBy">Modified By</label>
+                    <input id="lastModifiedBy" type="text" pInputText [(ngModel)]="itemStyle.modifiedBy"
+                        [disabled]="true" />
+                </div>
+                }
+
+
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="saveItemStyle()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteItemStylesDialog" [style]="{width: '450px'}" header="Confirm" modal="modal"
+            [closable]="false">
+            <ng-template pTemplate="content">
+                <div class="confirmation-content">
+                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+                    <span>Are you sure you want to delete the selected item styles?</span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text"
+                    (click)="deleteItemStylesDialog = false"></button>
+                <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-text"
+                    (click)="confirmDeleteSelected()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteItemStyleDialog" [style]="{width: '450px'}" header="Confirm" modal="modal"
+            [closable]="false">
+            <ng-template pTemplate="content">
+                <div class="confirmation-content">
+                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+                    <span>Are you sure you want to delete {{itemStyle.displayName}}?</span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text"
+                    (click)="deleteItemStyleDialog = false"></button>
+                <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-text"
+                    (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

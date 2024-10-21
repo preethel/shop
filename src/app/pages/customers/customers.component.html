@@ -1,0 +1,139 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <p-toast></p-toast>
+      <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+            <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedCustomers()" [disabled]="!selectedCustomers || !selectedCustomers.length"></button>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="right">
+          <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+          <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
+        </ng-template>
+      </p-toolbar>
+
+      <p-table #dt [value]="customers" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['firstName','lastName','phoneNumber','email']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedCustomers" selectionMode="multiple" [rowHover]="true" dataKey="id" (onPage)="loadCustomers('', $event.first / $event.rows, $event.rows)">
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Manage Customers</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="firstName">First Name <p-sortIcon field="firstName"></p-sortIcon></th>
+            <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+            <th pSortableColumn="phoneNumber">Phone Number <p-sortIcon field="phoneNumber"></p-sortIcon></th>
+            <th pSortableColumn="telNumber">Tel Number <p-sortIcon field="telNumber"></p-sortIcon></th>
+            <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+            <th pSortableColumn="address">Address <p-sortIcon field="address"></p-sortIcon></th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-customer>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="customer"></p-tableCheckbox>
+            </td>
+            <td style="width:14%; min-width:10rem;"><span class="p-column-title">First Name</span>
+              {{customer.firstName}}
+            </td>
+            <td style="width:14%; min-width:10rem;">
+              <span class="p-column-title">Last Name</span>
+              {{customer.lastName}}
+            </td>
+            <td style="width:14%; min-width:10rem;"><span class="p-column-title">Phone Number</span>
+              {{customer.phoneNumber}}
+            </td>
+            <td style="width:14%; min-width:8rem;">
+              <span class="p-column-title">Tel Number</span>
+              {{customer.telNumber}}
+            </td>
+            <td style="width:14%; min-width:10rem;">
+              <span class="p-column-title">Email</span>
+              {{customer.email}}
+            </td>
+            <td style="width:14%; min-width: 10rem;"><span class="p-column-title">Address</span>
+              {{customer.address}}
+            </td>
+            <td>
+              <div class="flex">
+                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editCustomer(customer)"></button>
+                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteCustomer(customer)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <p-dialog [(visible)]="customerDialog" [style]="{width: '450px'}" header="Customer Details" [modal]="true" class="p-fluid">
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" pInputText [(ngModel)]="customer.firstName" required autofocus />
+        </div>
+        <div class="field">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" pInputText [(ngModel)]="customer.lastName" required />
+        </div>
+        <div class="field">
+          <label for="phoneNumber">Phone Number</label>
+          <input id="phoneNumber" type="text" pInputText [(ngModel)]="customer.phoneNumber" required />
+        </div>
+        <div class="field">
+          <label for="telNumber">Tel Number</label>
+          <input id="telNumber" type="text" pInputText [(ngModel)]="customer.telNumber" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="text" pInputText [(ngModel)]="customer.email" required />
+        </div>
+        <div class="field">
+          <label for="address">Address</label>
+          <input id="address" type="text" pInputText [(ngModel)]="customer.address" required />
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveCustomer()"></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog [(visible)]="deleteCustomersDialog" [style]="{width: '450px'}" header="Confirm" modal="modal" [closable]="false">
+      <ng-template pTemplate="content">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+          <span>Are you sure you want to delete the selected customers?</span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text" (click)="deleteCustomersDialog = false"></button>
+        <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-text" (click)="confirmDeleteSelected()"></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog [(visible)]="deleteCustomerDialog" [style]="{width: '450px'}" header="Confirm" modal="modal" [closable]="false">
+      <ng-template pTemplate="content">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+          <span>Are you sure you want to delete {{customer.firstName}} {{customer.lastName}}?</span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text" (click)="deleteCustomerDialog = false"></button>
+        <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-text" (click)="confirmDelete()"></button>
+      </ng-template>
+    </p-dialog>
+  </div>
+</div>

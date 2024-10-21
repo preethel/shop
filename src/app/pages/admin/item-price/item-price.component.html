@@ -1,0 +1,129 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-0 py-0">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-0">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
+
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="itemPrices" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['itemStyle','itemStyleId','startDate','endDate','price','boyPrice','babyPrice']"
+                [showCurrentPageReport]="true" [rowHover]="true" dataKey="id" (onPage)="loadItemPrices()">
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="itemStyle">Item Style <p-sortIcon field="itemStyle"></p-sortIcon></th>
+                        <th pSortableColumn="itemStyleId">Item Style ID <p-sortIcon field="itemStyleId"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="startDate">Start Date <p-sortIcon field="startDate"></p-sortIcon></th>
+                        <th pSortableColumn="endDate">End Date <p-sortIcon field="endDate"></p-sortIcon></th>
+                        <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
+                        <th pSortableColumn="boyPrice">Boy Price <p-sortIcon field="boyPrice"></p-sortIcon></th>
+                        <th pSortableColumn="babyPrice">Baby Price <p-sortIcon field="babyPrice"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-itemPrice>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Item Style</span>
+                            {{itemPrice.itemStyle}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Item Style ID</span>
+                            {{itemPrice.itemStyleId}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Start Date</span>
+                            {{itemPrice.startDate}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">End Date</span>
+                            {{itemPrice.endDate}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Price</span>
+                            {{itemPrice.price | currency}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Boy Price</span>
+                            {{itemPrice.boyPrice | currency}}
+                        </td>
+                        <td style="width:14%; min-width:10rem;">
+                            <span class="p-column-title">Baby Price</span>
+                            {{itemPrice.babyPrice | currency}}
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editItemPrice(itemPrice)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                                    (click)="deleteItemPrice(itemPrice)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="itemPriceDialog" [style]="{width: '450px'}" header="Item Price Details" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="itemStyle">Item Style</label>
+                    <input id="itemStyle" type="text" pInputText [(ngModel)]="itemPrice.itemStyle" required autofocus />
+                </div>
+                <div class="field">
+                    <label for="itemStyleId">Item Style ID</label>
+                    <input id="itemStyleId" type="text" pInputText [(ngModel)]="itemPrice.itemStyleId" required />
+                </div>
+                <div class="field">
+                    <label for="startDate">Start Date</label>
+                    <input id="startDate" type="text" pInputText [(ngModel)]="itemPrice.startDate" required />
+                </div>
+                <div class="field">
+                    <label for="endDate">End Date</label>
+                    <input id="endDate" type="text" pInputText [(ngModel)]="itemPrice.endDate" required />
+                </div>
+                <div class="field">
+                    <label for="price">Price</label>
+                    <input id="price" type="number" pInputText [(ngModel)]="itemPrice.price" required />
+                </div>
+                <div class="field">
+                    <label for="boyPrice">Boy Price</label>
+                    <input id="boyPrice" type="number" pInputText [(ngModel)]="itemPrice.boyPrice" required />
+                </div>
+                <div class="field">
+                    <label for="babyPrice">Baby Price</label>
+                    <input id="babyPrice" type="number" pInputText [(ngModel)]="itemPrice.babyPrice" required />
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="saveItemPrice()"></button>
+            </ng-template>
+        </p-dialog>
+        <p-dialog [(visible)]="deleteItemPriceDialog" [style]="{width: '450px'}" header="Confirm" modal="modal"
+            [closable]="false">
+            <ng-template pTemplate="content">
+                <div class="confirmation-content">
+                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+                    <span>Are you sure you want to delete {{itemPrice.itemStyle}}?</span>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="No" icon="pi pi-times" class="p-button-text"
+                    (click)="deleteItemPriceDialog = false"></button>
+                <button pButton pRipple label="Yes" icon="pi pi-check" class="p-button-text"
+                    (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
